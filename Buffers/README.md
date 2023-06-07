@@ -32,12 +32,12 @@ Quotes and trades are added to their appropriate buffers concurrently.
 
 - High priority buffer: A thread-safe queue for trade executions.
 
-  - The Producer enqueues, the Consumer dequeues.
+  - The Receiver enqueues, the Consumer dequeues.
   - ConcurrentQueue utilized for thread safety.
 
 - Low priority buffer: A dictionary-based buffer for quotes.
 
-  - The Producer maps new quotes to symbols, replacing existing ones if they haven't been read by the Consumer.
+  - The Receiver maps new quotes to symbols, replacing existing ones if they haven't been read by the Consumer.
   - When the high priority buffer is empty, the Consumer reads all new quotes from the dictionary, then clears it.
   - A lock mechanism is employed to allow the Consumer to perform both operations without discarding new, unread quotes.
 
