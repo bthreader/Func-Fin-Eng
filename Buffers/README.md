@@ -1,4 +1,4 @@
-# Market Data Stream Processor
+# Buffers
 
 ## Project Description
 
@@ -20,12 +20,15 @@ graph TB
 
 Simulates the reception of market data events from multiple sources. It generates random market data events at regular intervals and adds them to the appropriate buffer for further processing.
 
-Two types of market data:
+There are two types of market data handled by the Receiver:
 
-1. Quotes [low priority]
-2. Trade executions [high priority]
+- Quotes [low priority]: approximately 200 quotes per second.
 
-### Buffer Implementation:
+- Trade executions [high priority]: approximately 1 trade per millisecond.
+
+Quotes and trades are added to their appropriate buffers concurrently.
+
+### Buffer Implementation
 
 - High priority buffer: A thread-safe queue for trade executions.
 
@@ -46,9 +49,15 @@ The Consumer component combines quote and trade data to calculate the price for 
 
 2. When a quote for stock X arrives:
 
-- If there is a trade price on record, it sets the price of X as 0.8 times the last trade price plus the quote mid.
+- If there is a trade price on record, it sets the price of X as 0.8 times the last trade price plus 0.2 times the quote mid.
 - If there is no trade price on record, it sets the price of X as the quote mid.
 
 ## Improvements
 
+### 1. Thread-Safe Priority Queue
+
 There isn't a dotnet standard library thread-safe priority queue. To enhance the system further, a custom one could be built. This enhancement would enable assigning higher priority to specific transactions, such as larger trades or trades associated with heavily weighted stocks in the portfolio.
+
+### 2. Fallback Mechanism for Trade Buffer
+
+Currently, if the trade buffer gets filled to a point where the Consumer cannot empty it, there is a risk that quotes will never be processed. To address this, a mechanism could be built to periodically check the state of the trade buffer and, if necessary, temporarily prioritize processing quotes. This way, we could ensure that quotes are consistently processed, even in scenarios where the trade buffer is heavily loaded.

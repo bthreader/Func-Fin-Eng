@@ -30,7 +30,8 @@ type Trade =
       size: int }
 
 module MarketDataGenerator =
-    let private random = System.Random(System.Environment.TickCount)
+    let private random () =
+        System.Random(System.Environment.TickCount)
 
     let private symbols =
         [ VOD
@@ -49,20 +50,19 @@ module MarketDataGenerator =
           REL
           BT ]
 
-    let randomSymbol () = symbols[random.Next(symbols.Length)]
-
-    let private randomBidPrice () = 5 - random.Next(0, 3)
-
-    let private randomAskPrice () = 5 + random.Next(0, 2)
-
-    let private randomTradePrice () = 7.0 + random.NextDouble()
+    let randomSymbol () = symbols[random().Next(symbols.Length)]
 
     let randomQuote (symbol: FTSEStockSymbol) =
+        let randomBidPrice = 5 - random().Next(0, 3)
+        let randomAskPrice = 5 + random().Next(0, 2)
+
         { symbol = symbol
-          bid = randomBidPrice ()
-          ask = randomAskPrice () }
+          bid = randomBidPrice
+          ask = randomAskPrice }
 
     let randomTrade (symbol: FTSEStockSymbol) =
+        let randomTradePrice = 7.0 + random().NextDouble()
+
         { symbol = symbol
           size = 5
-          price = randomTradePrice () }
+          price = randomTradePrice }

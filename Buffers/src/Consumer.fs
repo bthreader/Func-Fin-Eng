@@ -17,11 +17,22 @@ module Portfolio =
     let portfolioValue (p: Portfolio) =
         p.Values |> Seq.sumBy (fun entry -> entry.value)
 
-    let printPortfolioValue (portfolio: Portfolio) =
+    type PortfolioUpdateReason =
+        | Quote
+        | Trade
+        | Init
+
+    let printPortfolioValue (portfolio: Portfolio) (updateReason: PortfolioUpdateReason) =
         let value = portfolioValue (portfolio)
-        Console.Clear()
+
+        let reasonString =
+            match updateReason with
+            | Quote -> "Q"
+            | Trade -> "T"
+            | Init -> "I"
+
         Console.SetCursorPosition(0, Console.CursorTop)
-        printf "Portfolio Value: %.2f" value
+        printf "Portfolio Value: %.2f (%s)" value reasonString
 
     let generateRandomPortfolio nStocks =
         let rec newRandomSymbolForPortfolio (existingPortfolio: Portfolio) =
@@ -54,7 +65,7 @@ module Handlers =
 
     /// <summary> Adjusts portfolio for trade data. </summary>
     /// <returns>
-    ///     * None if the symbol being traded doesn't exist in portfolio.
+    ///     * None if the symbol being traded doesn't exist in the portfolio.
     ///     * The updated portfolio if it does.
     /// </returns>
     let handleTrade (trade: Trade) (portfolio: Portfolio) : option<Portfolio> =
@@ -68,10 +79,15 @@ module Handlers =
             Some(portfolio.Add(trade.symbol, newEntry))
         | false, _ -> None
 
+    /// <summary> Adjusts portfolio for quote data. </summary>
+    /// <returns>
+    ///     * None if the symbol being quoted doesn't exist in the portfolio.
+    ///     * The updated portfolio if it does.
+    /// </returns>
     let handleQuote (quote: Quote) (portfolio: Portfolio) : option<Portfolio> =
         let handlePriceUpdate (quoteMid: float) (lastExecutedPrice: option<float>) =
             match lastExecutedPrice with
-            | Some price -> price * 0.8 + quoteMid
+            | Some price -> price * 0.8 + quoteMid * 0.2
             | None -> quoteMid
 
         match portfolio.TryGetValue(quote.symbol) with

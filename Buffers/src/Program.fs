@@ -3,15 +3,34 @@ open Receiver
 
 let rec receiver (quoteBuffer: QuoteBuffer) (tradeBuffer: TradeBuffer) =
     async {
-        do addTrades tradeBuffer 5
-        do! Async.Sleep(100)
+        let tradeReceiverTask =
+            async {
+                let rec loop () =
+                    async {
+                        do addTrade tradeBuffer
+                        do! Async.Sleep(1)
+                        do! loop ()
+                    }
 
-        lock quoteBuffer (fun () -> addQuotes quoteBuffer 200)
+                do! loop ()
+            }
 
-        do addTrades tradeBuffer 20
+        let quoteReceiverTask =
+            async {
+                let rec loop () =
+                    async {
+                        lock quoteBuffer (fun () -> do addQuote quoteBuffer)
+                        do! Async.Sleep(5)
+                        do! loop ()
+                    }
 
-        do! Async.Sleep(200)
-        return! receiver quoteBuffer tradeBuffer
+                do! loop ()
+            }
+
+        [ tradeReceiverTask; quoteReceiverTask ]
+        |> Async.Parallel
+        |> Async.RunSynchronously
+        |> ignore
     }
 
 let rec consumer (quoteBuffer: QuoteBuffer) (tradeBuffer: TradeBuffer) (portfolio: Portfolio.Portfolio) =
@@ -21,8 +40,8 @@ let rec consumer (quoteBuffer: QuoteBuffer) (tradeBuffer: TradeBuffer) (portfoli
             | true, trade ->
                 match Handlers.handleTrade trade portfolio with
                 | Some newPortfolio ->
-                    do Portfolio.printPortfolioValue newPortfolio
-                    return! consumer quoteBuffer tradeBuffer newPortfolio
+                    do Portfolio.printPortfolioValue newPortfolio Portfolio.PortfolioUpdateReason.Trade
+                    do! consumer quoteBuffer tradeBuffer newPortfolio
                 | None -> ()
             | false, _ -> ()
 
@@ -39,11 +58,11 @@ let rec consumer (quoteBuffer: QuoteBuffer) (tradeBuffer: TradeBuffer) (portfoli
                         | None -> acc)
                     portfolio
 
-            do Portfolio.printPortfolioValue (newPortfolio)
-            return! consumer quoteBuffer tradeBuffer newPortfolio
+            do Portfolio.printPortfolioValue (newPortfolio) Portfolio.PortfolioUpdateReason.Quote
+            do! consumer quoteBuffer tradeBuffer newPortfolio
 
-        do! Async.Sleep(100) // Avoid tight looping
-        return! consumer quoteBuffer tradeBuffer portfolio
+        do! Async.Sleep(1) // Avoid tight looping
+        do! consumer quoteBuffer tradeBuffer portfolio
     }
 
 
@@ -52,7 +71,7 @@ let main argv =
     let quoteBuffer = new QuoteBuffer()
     let tradeBuffer = new TradeBuffer()
     let portfolio = Portfolio.generateRandomPortfolio (10)
-    do Portfolio.printPortfolioValue portfolio
+    do Portfolio.printPortfolioValue portfolio Portfolio.PortfolioUpdateReason.Init
 
     [ receiver quoteBuffer tradeBuffer; consumer quoteBuffer tradeBuffer portfolio ]
     |> Async.Parallel

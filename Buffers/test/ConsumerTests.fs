@@ -44,6 +44,27 @@ module Portfolio =
     [<Test>]
     let portfolioValueTest () =
         portfolioValue testPortfolio |> should equal 110
+        portfolioValue Map.empty |> should equal 0
+
+    [<TestFixture>]
+    type GenerateRandomPortfolioTests() =
+        [<Test>]
+        member _.``Should generate portfolio with specified number of stocks``() =
+            let nStocks = 5
+            let portfolio = generateRandomPortfolio nStocks
+            let actualStockCount = portfolio.Count
+            actualStockCount |> should equal nStocks
+
+        [<Test>]
+        member _.``Should generate portfolio with valid entries``() =
+            let nStocks = 3
+            let portfolio = generateRandomPortfolio nStocks
+
+            portfolio.Values
+            |> Seq.iter (fun entry ->
+                entry.shares |> should equal 100
+                entry.price |> should equal 0
+                entry.lastExecutedPrice |> should equal None)
 
 module Handlers =
     open Utils
@@ -111,7 +132,9 @@ module Handlers =
             |> Option.get
             |> should equal (Option.get updatedPortfolio[BP].lastExecutedPrice)
 
-            let newPrice = Option.get testPortfolio[BP].lastExecutedPrice * 0.8 + quote.mid
+            let newPrice =
+                Option.get testPortfolio[BP].lastExecutedPrice * 0.8 + quote.mid * 0.2
+
             updatedPortfolio[BP].price |> should equal newPrice
 
         [<Test>]
