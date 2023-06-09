@@ -10,7 +10,7 @@ type QuoteBuffer = Dictionary<FTSEStockSymbol, Quote>
 type TradeBuffer = ConcurrentQueue<Trade>
 
 let addQuote (quoteBuffer: QuoteBuffer) (generator: IQuoteGenerator) =
-    let generatedQuote = randomQuote generator
+    let generatedQuote = generateQuote generator
     let symbol = generatedQuote.symbol
 
     match quoteBuffer.ContainsKey(symbol) with
@@ -20,5 +20,5 @@ let addQuote (quoteBuffer: QuoteBuffer) (generator: IQuoteGenerator) =
     do quoteBuffer.Add(symbol, generatedQuote)
 
 let rec addTrade (tradeBuffer: TradeBuffer) (generator: ITradeGenerator) =
-    let generatedTrade = randomTrade generator
+    let generatedTrade = generateTrade generator
     do tradeBuffer.Enqueue(generatedTrade)

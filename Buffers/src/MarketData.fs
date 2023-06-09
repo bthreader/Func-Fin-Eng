@@ -1,4 +1,4 @@
-module MarketData
+namespace MarketData
 
 type FTSEStockSymbol =
     | VOD
@@ -40,12 +40,12 @@ type ITradeGenerator =
     abstract member price: unit -> (unit -> float)
 
 module Deterministic =
-    let randomQuote (generator: IQuoteGenerator) =
+    let generateQuote (generator: IQuoteGenerator) =
         { symbol = generator.symbol () ()
           bid = generator.bidPrice () ()
           ask = generator.askPrice () () }
 
-    let randomTrade (generator: ITradeGenerator) =
+    let generateTrade (generator: ITradeGenerator) =
         { symbol = generator.symbol () ()
           size = generator.size () ()
           price = generator.price () () }
@@ -69,20 +69,16 @@ module NonDeterministic =
           BT ]
 
     let private random = System.Random()
-
     let randomSymbol () = symbols[random.Next(symbols.Length)]
-    let randomBidPrice () = 5 - random.Next(0, 3)
-    let randomAskPrice () = 5 + random.Next(0, 2)
-    let randomTradePrice () = 7.0 + random.NextDouble()
 
     type RandomQuoteGenerator() =
         interface IQuoteGenerator with
             member _.symbol() = randomSymbol
-            member _.bidPrice() = randomBidPrice
-            member _.askPrice() = randomAskPrice
+            member _.bidPrice() = fun () -> 5 - random.Next(0, 3)
+            member _.askPrice() = fun () -> 5 + random.Next(0, 2)
 
     type RandomTradeGenerator() =
         interface ITradeGenerator with
             member _.symbol() = randomSymbol
             member _.size() = fun () -> 5
-            member _.price() = randomTradePrice
+            member _.price() = fun () -> 7.0 + random.NextDouble()
