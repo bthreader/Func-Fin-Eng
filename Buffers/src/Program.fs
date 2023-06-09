@@ -8,7 +8,7 @@ let rec receiver (quoteBuffer: QuoteBuffer) (tradeBuffer: TradeBuffer) =
             async {
                 let rec loop () =
                     async {
-                        do addTrade tradeBuffer (NonDeterministic.RandomTradeGenerator())
+                        do addTrade tradeBuffer (Generate.RandomTradeGenerator())
                         do! Async.Sleep(1)
                         do! loop ()
                     }
@@ -20,7 +20,7 @@ let rec receiver (quoteBuffer: QuoteBuffer) (tradeBuffer: TradeBuffer) =
             async {
                 let rec loop () =
                     async {
-                        lock quoteBuffer (fun () -> do addQuote quoteBuffer (NonDeterministic.RandomQuoteGenerator()))
+                        lock quoteBuffer (fun () -> do addQuote quoteBuffer (Generate.RandomQuoteGenerator()))
                         do! Async.Sleep(5)
                         do! loop ()
                     }

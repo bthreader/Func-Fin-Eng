@@ -24,33 +24,22 @@ type Quote =
 
     member this.mid = (this.bid + this.ask) / 2.0
 
-type Trade =
-    { symbol: FTSEStockSymbol
-      price: float
-      size: int }
-
 type IQuoteGenerator =
     abstract member symbol: unit -> (unit -> FTSEStockSymbol)
     abstract member bidPrice: unit -> (unit -> int)
     abstract member askPrice: unit -> (unit -> int)
+
+type Trade =
+    { symbol: FTSEStockSymbol
+      price: float
+      size: int }
 
 type ITradeGenerator =
     abstract member symbol: unit -> (unit -> FTSEStockSymbol)
     abstract member size: unit -> (unit -> int)
     abstract member price: unit -> (unit -> float)
 
-module Deterministic =
-    let generateQuote (generator: IQuoteGenerator) =
-        { symbol = generator.symbol () ()
-          bid = generator.bidPrice () ()
-          ask = generator.askPrice () () }
-
-    let generateTrade (generator: ITradeGenerator) =
-        { symbol = generator.symbol () ()
-          size = generator.size () ()
-          price = generator.price () () }
-
-module NonDeterministic =
+module Generate =
     let private symbols =
         [ VOD
           RDSB
