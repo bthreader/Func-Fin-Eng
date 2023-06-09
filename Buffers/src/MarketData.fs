@@ -1,4 +1,4 @@
-namespace MarketData
+module MarketData
 
 type FTSEStockSymbol =
     | VOD
@@ -29,10 +29,28 @@ type Trade =
       price: float
       size: int }
 
-module MarketDataGenerator =
-    let private random () =
-        System.Random(System.Environment.TickCount)
+type IQuoteGenerator =
+    abstract member symbol: unit -> (unit -> FTSEStockSymbol)
+    abstract member bidPrice: unit -> (unit -> int)
+    abstract member askPrice: unit -> (unit -> int)
 
+type ITradeGenerator =
+    abstract member symbol: unit -> (unit -> FTSEStockSymbol)
+    abstract member size: unit -> (unit -> int)
+    abstract member price: unit -> (unit -> float)
+
+module Deterministic =
+    let randomQuote (generator: IQuoteGenerator) =
+        { symbol = generator.symbol () ()
+          bid = generator.bidPrice () ()
+          ask = generator.askPrice () () }
+
+    let randomTrade (generator: ITradeGenerator) =
+        { symbol = generator.symbol () ()
+          size = generator.size () ()
+          price = generator.price () () }
+
+module NonDeterministic =
     let private symbols =
         [ VOD
           RDSB
@@ -50,19 +68,21 @@ module MarketDataGenerator =
           REL
           BT ]
 
-    let randomSymbol () = symbols[random().Next(symbols.Length)]
+    let private random = System.Random()
 
-    let randomQuote (symbol: FTSEStockSymbol) =
-        let randomBidPrice = 5 - random().Next(0, 3)
-        let randomAskPrice = 5 + random().Next(0, 2)
+    let randomSymbol () = symbols[random.Next(symbols.Length)]
+    let randomBidPrice () = 5 - random.Next(0, 3)
+    let randomAskPrice () = 5 + random.Next(0, 2)
+    let randomTradePrice () = 7.0 + random.NextDouble()
 
-        { symbol = symbol
-          bid = randomBidPrice
-          ask = randomAskPrice }
+    type RandomQuoteGenerator() =
+        interface IQuoteGenerator with
+            member _.symbol() = randomSymbol
+            member _.bidPrice() = randomBidPrice
+            member _.askPrice() = randomAskPrice
 
-    let randomTrade (symbol: FTSEStockSymbol) =
-        let randomTradePrice = 7.0 + random().NextDouble()
-
-        { symbol = symbol
-          size = 5
-          price = randomTradePrice }
+    type RandomTradeGenerator() =
+        interface ITradeGenerator with
+            member _.symbol() = randomSymbol
+            member _.size() = fun () -> 5
+            member _.price() = randomTradePrice

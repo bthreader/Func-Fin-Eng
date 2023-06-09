@@ -4,14 +4,14 @@ open System.Collections.Concurrent
 open System.Collections.Generic
 
 open MarketData
-open MarketData.MarketDataGenerator
+open MarketData.Deterministic
 
 type QuoteBuffer = Dictionary<FTSEStockSymbol, Quote>
 type TradeBuffer = ConcurrentQueue<Trade>
 
-let addQuote (quoteBuffer: QuoteBuffer) =
-    let symbol = randomSymbol ()
-    let generatedQuote = randomQuote (symbol)
+let addQuote (quoteBuffer: QuoteBuffer) (generator: IQuoteGenerator) =
+    let generatedQuote = randomQuote generator
+    let symbol = generatedQuote.symbol
 
     match quoteBuffer.ContainsKey(symbol) with
     | true -> do quoteBuffer.Remove(symbol) |> ignore
@@ -19,7 +19,6 @@ let addQuote (quoteBuffer: QuoteBuffer) =
 
     do quoteBuffer.Add(symbol, generatedQuote)
 
-let rec addTrade (tradeBuffer: TradeBuffer) =
-    let symbol = randomSymbol ()
-    let generatedTrade = randomTrade (symbol)
+let rec addTrade (tradeBuffer: TradeBuffer) (generator: ITradeGenerator) =
+    let generatedTrade = randomTrade generator
     do tradeBuffer.Enqueue(generatedTrade)

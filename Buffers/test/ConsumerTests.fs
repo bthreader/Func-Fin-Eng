@@ -2,6 +2,7 @@ module ConsumerTests
 
 open NUnit.Framework
 open FsUnit
+
 open MarketData
 
 module Utils =
@@ -102,7 +103,7 @@ module Handlers =
     [<TestFixture>]
     type HandleQuoteTests() =
         [<Test>]
-        member _.``Given a quote for an existing symbol that doesn't have a lastExecutedPrice, should return updated portfolio``
+        member _.``Given a quote for an existing symbol, that doesn't have a lastExecutedPrice, should return updated portfolio``
             ()
             =
             testPortfolio[VOD].price |> should equal 1
@@ -117,7 +118,7 @@ module Handlers =
             updatedEntry.lastExecutedPrice |> Option.isNone |> should equal true
 
         [<Test>]
-        member _.``Given a quote for an existing symbol that does have a lastExecutedPrice, should return updated portfolio``
+        member _.``Given a quote for an existing symbol, that does have a lastExecutedPrice, should return updated portfolio``
             ()
             =
             testPortfolio[BP].price |> should equal 5

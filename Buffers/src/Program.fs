@@ -1,4 +1,5 @@
-﻿open Consumer
+﻿open MarketData
+open Consumer
 open Receiver
 
 let rec receiver (quoteBuffer: QuoteBuffer) (tradeBuffer: TradeBuffer) =
@@ -7,7 +8,7 @@ let rec receiver (quoteBuffer: QuoteBuffer) (tradeBuffer: TradeBuffer) =
             async {
                 let rec loop () =
                     async {
-                        do addTrade tradeBuffer
+                        do addTrade tradeBuffer (NonDeterministic.RandomTradeGenerator())
                         do! Async.Sleep(1)
                         do! loop ()
                     }
@@ -19,7 +20,7 @@ let rec receiver (quoteBuffer: QuoteBuffer) (tradeBuffer: TradeBuffer) =
             async {
                 let rec loop () =
                     async {
-                        lock quoteBuffer (fun () -> do addQuote quoteBuffer)
+                        lock quoteBuffer (fun () -> do addQuote quoteBuffer (NonDeterministic.RandomQuoteGenerator()))
                         do! Async.Sleep(5)
                         do! loop ()
                     }

@@ -1,6 +1,7 @@
 namespace Consumer
 
 open MarketData
+open MarketData.NonDeterministic
 
 module Portfolio =
     open System
@@ -36,7 +37,7 @@ module Portfolio =
 
     let generateRandomPortfolio nStocks =
         let rec newRandomSymbolForPortfolio (existingPortfolio: Portfolio) =
-            MarketDataGenerator.randomSymbol ()
+            randomSymbol ()
             |> fun symbol ->
                 match existingPortfolio.ContainsKey(symbol) with
                 | false -> symbol
