@@ -2,51 +2,51 @@ namespace Consumer
 
 open MarketData
 
+type PortfolioEntry =
+    { shares: int
+      price: float
+      lastExecutedPrice: Option<float> }
+
+    member this.value = float (this.shares) * this.price
+
+type Portfolio = Map<FTSEStockSymbol, PortfolioEntry>
+
+type PortfolioUpdateReason =
+    | Quote
+    | Trade
+    | Init
+
+    override this.ToString() =
+        match this with
+        | Quote -> "Q"
+        | Trade -> "T"
+        | Init -> "I"
+
 module Portfolio =
     open System
 
-    type PortfolioEntry =
-        { shares: int
-          price: float
-          lastExecutedPrice: Option<float> }
+    let value (portfolio: Portfolio) =
+        portfolio.Values |> Seq.sumBy (fun entry -> entry.value)
 
-        member this.value = float (this.shares) * this.price
-
-    type Portfolio = Map<FTSEStockSymbol, PortfolioEntry>
-
-    let portfolioValue (p: Portfolio) =
-        p.Values |> Seq.sumBy (fun entry -> entry.value)
-
-    type PortfolioUpdateReason =
-        | Quote
-        | Trade
-        | Init
-
-    let printPortfolioValue (portfolio: Portfolio) (updateReason: PortfolioUpdateReason) =
-        let value = portfolioValue (portfolio)
-
-        let reasonString =
-            match updateReason with
-            | Quote -> "Q"
-            | Trade -> "T"
-            | Init -> "I"
+    let printValue (portfolio: Portfolio) (updateReason: PortfolioUpdateReason) =
+        let value = value portfolio
 
         Console.SetCursorPosition(0, Console.CursorTop)
-        printf "Portfolio Value: %.2f (%s)" value reasonString
+        printf "Portfolio Value: %.2f (%s)" value (updateReason.ToString())
 
-    let generateRandomPortfolio nStocks =
-        let rec newRandomSymbolForPortfolio (existingPortfolio: Portfolio) =
+    let generateRandom nStocks =
+        let rec newRandomSymbol (existingPortfolio: Portfolio) =
             Generate.randomSymbol ()
             |> fun symbol ->
                 match existingPortfolio.ContainsKey(symbol) with
                 | false -> symbol
-                | true -> newRandomSymbolForPortfolio (existingPortfolio)
+                | true -> newRandomSymbol (existingPortfolio)
 
         let rec x (nStocks: int) (existingPortfolio: Portfolio) =
             if existingPortfolio.Count = nStocks then
                 existingPortfolio
             else
-                let randomSymbol = newRandomSymbolForPortfolio existingPortfolio
+                let randomSymbol = newRandomSymbol existingPortfolio
 
                 let newPortfolio =
                     existingPortfolio.Add(
@@ -61,7 +61,6 @@ module Portfolio =
         x nStocks Map.empty
 
 module Handlers =
-    open Portfolio
 
     /// <summary> Adjusts portfolio for trade data. </summary>
     /// <returns>

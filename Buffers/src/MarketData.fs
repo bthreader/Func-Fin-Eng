@@ -58,7 +58,9 @@ module Generate =
           BT ]
 
     let private random = System.Random()
-    let randomSymbol () = symbols[random.Next(symbols.Length)]
+
+    let randomSymbol () =
+        symbols.Item(random.Next(symbols.Length))
 
     type RandomQuoteGenerator() =
         interface IQuoteGenerator with

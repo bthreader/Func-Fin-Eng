@@ -34,14 +34,14 @@ let rec receiver (quoteBuffer: QuoteBuffer) (tradeBuffer: TradeBuffer) =
         |> ignore
     }
 
-let rec consumer (quoteBuffer: QuoteBuffer) (tradeBuffer: TradeBuffer) (portfolio: Portfolio.Portfolio) =
+let rec consumer (quoteBuffer: QuoteBuffer) (tradeBuffer: TradeBuffer) (portfolio: Portfolio) =
     async {
         if not tradeBuffer.IsEmpty then
             match tradeBuffer.TryDequeue() with
             | true, trade ->
                 match Handlers.handleTrade trade portfolio with
                 | Some newPortfolio ->
-                    do Portfolio.printPortfolioValue newPortfolio Portfolio.PortfolioUpdateReason.Trade
+                    do Portfolio.printValue newPortfolio Trade
                     do! consumer quoteBuffer tradeBuffer newPortfolio
                 | None -> ()
             | false, _ -> ()
@@ -59,20 +59,19 @@ let rec consumer (quoteBuffer: QuoteBuffer) (tradeBuffer: TradeBuffer) (portfoli
                         | None -> acc)
                     portfolio
 
-            do Portfolio.printPortfolioValue (newPortfolio) Portfolio.PortfolioUpdateReason.Quote
+            do Portfolio.printValue newPortfolio Quote
             do! consumer quoteBuffer tradeBuffer newPortfolio
 
         do! Async.Sleep(1) // Avoid tight looping
         do! consumer quoteBuffer tradeBuffer portfolio
     }
 
-
 [<EntryPoint>]
 let main argv =
     let quoteBuffer = new QuoteBuffer()
     let tradeBuffer = new TradeBuffer()
-    let portfolio = Portfolio.generateRandomPortfolio (10)
-    do Portfolio.printPortfolioValue portfolio Portfolio.PortfolioUpdateReason.Init
+    let portfolio = Portfolio.generateRandom 10
+    do Portfolio.printValue portfolio Init
 
     [ receiver quoteBuffer tradeBuffer; consumer quoteBuffer tradeBuffer portfolio ]
     |> Async.Parallel
