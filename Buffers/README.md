@@ -49,8 +49,8 @@ The Consumer component combines quote and trade data to calculate the price for 
 
 2. When a quote for stock X arrives:
 
-- If there is a trade price on record, it sets the price of X as 0.8 times the last trade price plus 0.2 times the quote mid.
-- If there is no trade price on record, it sets the price of X as the quote mid.
+   - If there is a trade price on record, it sets the price of X as 0.8 times the last trade price plus 0.2 times the quote mid.
+   - If there is no trade price on record, it sets the price of X as the quote mid.
 
 ## Improvements
 
