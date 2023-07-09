@@ -3,7 +3,6 @@ package triplebuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import com.google.common.annotations.VisibleForTesting;
 
 public class SharedState<T> {
     /**
@@ -44,7 +43,6 @@ public class SharedState<T> {
     /**
      * Indicates whether there is a new value which hasn't been read yet.
      */
-    @VisibleForTesting
     public boolean cleanIsUnread() {
         return ((backBufferState.get() & CLEAN_IS_UNREAD) != 0);
     }
