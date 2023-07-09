@@ -15,7 +15,7 @@ public class TripleBufferTest {
     @Test
     void initalizesProperly() {
         // Clean buffer is set to unread, which means that read will swap the
-        // initial output buffer (null) with the clean buffer (2)
+        // initial output buffer (3) with the clean buffer (2)
         int value = tripleBuffer.read();
 
         assertEquals(2, value);
