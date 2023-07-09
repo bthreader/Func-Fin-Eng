@@ -56,6 +56,6 @@ The project involves two buffers, one for each market. There is a separate produ
 
 A single consumer thread then reads from both buffers to compute a combined rate in the form of a simple average:
 
-$$
+```math
 \text{GBPUSD}_{pricer} = \frac{\text{GBPUSD}_{market A} + \text{GBPUSD}_{market B}}{2}
-$$
+```
