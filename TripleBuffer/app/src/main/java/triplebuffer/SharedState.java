@@ -12,7 +12,7 @@ public class SharedState<T> {
      * First bit is a flag which indicates whether there is a value in the clean backbuffer that
      * hasn't been read; `cleanIsUnread`.
      *
-     * Second and third bit provide the index of the current clean backbuffer (0, 1, or 2).
+     * Second and third bit together provide the index of the current clean backbuffer (0, 1, or 2).
      */
     private AtomicInteger backBufferState;
     private static final int CLEAN_INDEX_MASK = 0b11;

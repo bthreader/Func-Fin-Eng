@@ -13,7 +13,16 @@ public class TripleBufferTest {
     }
 
     @Test
-    void testSingleWriteAndRead() {
+    void initalizesProperly() {
+        // Clean buffer is set to unread, which means that read will swap the
+        // initial output buffer (null) with the clean buffer (2)
+        int value = tripleBuffer.read();
+
+        assertEquals(2, value);
+    }
+
+    @Test
+    void singleWriteAndRead() {
         tripleBuffer.write(50);
         assertEquals(50, tripleBuffer.read());
     }
@@ -26,27 +35,11 @@ public class TripleBufferTest {
         assertEquals(22, tripleBuffer.read());
     }
 
-    // @Test
-    // void testWriteAndReadConcurrent() throws InterruptedException {
-    // Thread writerThread = new Thread(() -> {
-    // for (int i = 1; i <= 10; i++) {
-    // tripleBuffer.write(i);
-    // }
-    // });
-
-    // Thread readerThread = new Thread(() -> {
-    // for (int i = 1; i <= 10; i++) {
-    // int value = tripleBuffer.read();
-    // assertEquals(i, value);
-    // }
-    // });
-
-    // // Start the writer and reader threads
-    // writerThread.start();
-    // readerThread.start();
-
-    // // Wait for both threads to complete
-    // writerThread.join();
-    // readerThread.join();
-    // }
+    @Test
+    void oneWriteAndMultipleReads() {
+        tripleBuffer.write(50);
+        assertEquals(50, tripleBuffer.read());
+        assertEquals(50, tripleBuffer.read());
+        assertEquals(50, tripleBuffer.read());
+    }
 }
