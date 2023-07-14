@@ -1,10 +1,10 @@
-package triplebuffer;
+package triplebuffer.buffer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class TripleBufferTest {
+class TripleBufferTest {
     private TripleBuffer<Integer> tripleBuffer;
 
     @BeforeEach

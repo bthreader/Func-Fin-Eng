@@ -2,6 +2,10 @@ package triplebuffer;
 
 import java.util.Random;
 
+import triplebuffer.buffer.IConsumer;
+import triplebuffer.buffer.IProducer;
+import triplebuffer.buffer.TripleBuffer;
+
 public class App {
     public static void main(String[] args) {
         TripleBuffer<Double> marketABuffer = new TripleBuffer<>(1.28, 1.28, 1.28);

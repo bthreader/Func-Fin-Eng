@@ -1,5 +1,8 @@
-package triplebuffer;
+package triplebuffer.buffer;
 
+import javax.annotation.concurrent.ThreadSafe;
+
+@ThreadSafe
 public class TripleBuffer<T> implements IProducer<T>, IConsumer<T> {
     private Integer inputIndex = 0;
     private Integer outputIndex = 2;
@@ -12,7 +15,7 @@ public class TripleBuffer<T> implements IProducer<T>, IConsumer<T> {
     /**
      * Set the value of the input buffer.
      */
-    public void write(T value) {
+    public synchronized void write(T value) {
         sharedState.setBuffer(inputIndex, value);
         inputIndex = sharedState.swapBackBuffer(inputIndex);
     }
@@ -20,7 +23,7 @@ public class TripleBuffer<T> implements IProducer<T>, IConsumer<T> {
     /**
      * Read the value of the output buffer.
      */
-    public T read() {
+    public synchronized T read() {
         if (sharedState.cleanIsUnread()) {
             // Swap the current output buffer with the clean back buffer
             outputIndex = sharedState.swapOutputBuffer(outputIndex);
