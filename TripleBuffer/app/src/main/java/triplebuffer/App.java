@@ -22,9 +22,9 @@ public class App {
             while (true) {
                 boolean up = random.nextBoolean();
                 if (up) {
-                    marketAProducer.write(1.29);
+                    marketAProducer.write(1.29 + random.nextDouble() * 0.001);
                 } else {
-                    marketAProducer.write(1.27);
+                    marketAProducer.write(1.27 + random.nextDouble() * 0.001);
                 }
 
                 // Avoid tight looping
@@ -40,9 +40,9 @@ public class App {
             while (true) {
                 boolean up = random.nextBoolean();
                 if (up) {
-                    marketBProducer.write(1.3);
+                    marketBProducer.write(1.30 + random.nextDouble() * 0.001);
                 } else {
-                    marketBProducer.write(1.26);
+                    marketBProducer.write(1.26 + random.nextDouble() * 0.001);
                 }
 
                 // Avoid tight looping
@@ -59,7 +59,7 @@ public class App {
                 double gpbUsdA = marketAConsumer.read();
                 double gbpUsdB = marketBConsumer.read();
 
-                System.out.printf("%.3f", (gpbUsdA + gbpUsdB) / 2);
+                System.out.printf("%.4f", (gpbUsdA + gbpUsdB) / 2);
                 System.out.println();
 
                 // Avoid tight looping

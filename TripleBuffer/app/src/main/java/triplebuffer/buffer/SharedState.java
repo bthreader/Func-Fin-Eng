@@ -17,27 +17,59 @@ class SharedState<T> {
     private static final int CLEAN_INDEX_MASK = 0b11;
     private static final int CLEAN_IS_UNREAD = 0b100;
 
-    private volatile List<T> buffers;
+    private volatile T buffer0;
+    private volatile T buffer1;
+    private volatile T buffer2;
 
-    /**
-     * Creates a three buffer array and manages it's state.
-     *
-     * @param inputValue initial input buffer value: buffers[0]
-     * @param cleanValue initial clean buffer value: buffers[1]
-     * @param outputValue initial output buffer value: buffers[2]
-     */
     public SharedState(T inputValue, T cleanValue, T outputValue) {
-        buffers = new ArrayList<>(List.of(inputValue, cleanValue, outputValue));
+        // buffer0 is the initial input buffer
+        buffer0 = inputValue;
+
+        // buffer1 is the initial clean buffer
+        buffer1 = cleanValue;
+
+        // buffer2 is the initial output buffer
+        buffer2 = outputValue;
+
         // Set clean backbuffer as unread, with index 1
         backBufferState = new AtomicInteger(0b101);
     }
 
     public T getBuffer(int index) {
-        return buffers.get(index);
+        switch (index) {
+            case 0: {
+                return buffer0;
+            }
+            case 1: {
+                return buffer1;
+            }
+            case 2: {
+                return buffer2;
+            }
+            default: {
+                throw new IndexOutOfBoundsException(index);
+            }
+        }
     }
 
     public void setBuffer(int index, T value) {
-        buffers.set(index, value);
+        switch (index) {
+            case 0: {
+                buffer0 = value;
+                break;
+            }
+            case 1: {
+                buffer1 = value;
+                break;
+            }
+            case 2: {
+                buffer2 = value;
+                break;
+            }
+            default: {
+                throw new IndexOutOfBoundsException(index);
+            }
+        }
     }
 
     /**
